@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+{% seo %}
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="{{ '/assets/js/respond.js' | relative_url }}"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="{{ '/assets/css/ie.css' | relative_url }}">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+      .site-nav {
+        margin: 0 0 2.2em;
+        padding: 0.7em 0;
+        border-top: 1px solid #2b2b2b;
+        border-bottom: 1px solid #2b2b2b;
+      }
+      .site-nav a {
+        margin-right: 1.5em;
+        font-weight: bold;
+        font-size: 0.8em;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .site-nav a.active {
+        color: #fff;
+        text-decoration: underline;
+      }
+    </style>
+    {% include head-custom.html %}
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <ul>
+            <li class="fork"><a href="{{ site.github.repository_url }}">View On GitHub</a></li>
+            {% if site.show_downloads %}
+              <li class="downloads"><a href="{{ site.github.zip_url }}">ZIP</a></li>
+              <li class="downloads"><a href="{{ site.github.tar_url }}">TAR</a></li>
+              <li class="title">DOWNLOADS</li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>{{ site.title | default: site.github.repository_name }}</h1>
+          <p>{{ site.tagline | default: site.description | default: site.github.project_tagline }}</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/mattgraham">mattgraham</a></span>
+        </div>
+
+        <nav class="site-nav">
+          {% for item in site.nav %}
+            {% assign item_url = item.url | relative_url %}
+            {% comment %}Normalize page url (strip trailing slash) for active matching.{% endcomment %}
+            {% assign current = page.url | remove_first: '.html' %}
+            {% if current == item.url or current == item_url or page.url == item.url %}
+              <a class="active" href="{{ item_url }}">{{ item.title }}</a>
+            {% else %}
+              <a href="{{ item_url }}">{{ item.title }}</a>
+            {% endif %}
+          {% endfor %}
+        </nav>
+
+        {{ content }}
+
+      </section>
+
+    </div>
+  </body>
+</html>

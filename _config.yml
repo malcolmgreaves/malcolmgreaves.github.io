@@ -1,1 +1,15 @@
+title: Malcolm Greaves
+tagline: Staff software engineer — distributed systems, ML infrastructure & AI
 theme: jekyll-theme-midnight
+
+nav:
+  - title: Home
+    url: /
+  - title: About
+    url: /about
+  - title: Projects
+    url: /projects
+  - title: Blog
+    url: /blog
+  - title: Links
+    url: /links
