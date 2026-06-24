@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+#
+# dev — manage the local development lifecycle for this Jekyll site.
+#
+# Usage: ./dev <command>
+#
+#   setup     Install Ruby gem dependencies into ./vendor/bundle
+#   serve     Build and serve the site locally with live reload
+#   build     Build the static site into ./_site
+#   clean     Remove generated files (_site, caches)
+#   doctor    Check that the required tools are available
+#   help      Show this help
+#
+set -euo pipefail
+
+# Always operate from the directory this script lives in.
+cd "$(dirname "$0")"
+
+BUNDLE_PATH="vendor/bundle"
+
+err()  { printf '\033[31m%s\033[0m\n' "$*" >&2; }
+info() { printf '\033[36m%s\033[0m\n' "$*"; }
+
+require_bundler() {
+  if ! command -v bundle >/dev/null 2>&1; then
+    err "Bundler is not installed. Install it with: gem install bundler"
+    exit 1
+  fi
+}
+
+ensure_setup() {
+  if [ ! -d "$BUNDLE_PATH" ]; then
+    info "Dependencies not installed yet — running setup first..."
+    cmd_setup
+  fi
+}
+
+cmd_setup() {
+  require_bundler
+  info "Installing gems into ./$BUNDLE_PATH ..."
+  bundle config set --local path "$BUNDLE_PATH"
+  bundle install
+  info "Setup complete. Run './dev serve' to preview the site."
+}
+
+cmd_serve() {
+  require_bundler
+  ensure_setup
+  info "Serving at http://127.0.0.1:4000/ (Ctrl-C to stop)"
+  bundle exec jekyll serve --livereload --open-url
+}
+
+cmd_build() {
+  require_bundler
+  ensure_setup
+  info "Building site into ./_site ..."
+  JEKYLL_ENV=production bundle exec jekyll build
+  info "Build complete."
+}
+
+cmd_clean() {
+  require_bundler
+  ensure_setup
+  bundle exec jekyll clean
+  info "Cleaned generated files."
+}
+
+cmd_doctor() {
+  local ok=0
+  for tool in ruby bundle; do
+    if command -v "$tool" >/dev/null 2>&1; then
+      printf '  ✓ %-8s %s\n' "$tool" "$($tool --version 2>&1 | head -n1)"
+    else
+      err "  ✗ $tool not found"
+      ok=1
+    fi
+  done
+  if [ -d "$BUNDLE_PATH" ]; then
+    printf '  ✓ %-8s installed\n' "gems"
+  else
+    printf '  • %-8s not installed (run ./dev setup)\n' "gems"
+  fi
+  return $ok
+}
+
+cmd_help() {
+  sed -n '3,13p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+case "${1:-help}" in
+  setup|install) cmd_setup ;;
+  serve|server|start) cmd_serve ;;
+  build)             cmd_build ;;
+  clean)             cmd_clean ;;
+  doctor)            cmd_doctor ;;
+  help|-h|--help)    cmd_help ;;
+  *) err "Unknown command: $1"; echo; cmd_help; exit 1 ;;
+esac
