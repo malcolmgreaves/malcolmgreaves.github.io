@@ -67,14 +67,36 @@ cmd_clean() {
 
 cmd_doctor() {
   local ok=0
+
+  if command -v mise >/dev/null 2>&1; then
+    printf '  ✓ %-8s %s\n' "mise" "$(mise --version 2>&1 | head -n1)"
+  else
+    printf '  • %-8s not found — see README to install (manages the Ruby version)\n' "mise"
+  fi
+
   for tool in ruby bundle; do
     if command -v "$tool" >/dev/null 2>&1; then
-      printf '  ✓ %-8s %s\n' "$tool" "$($tool --version 2>&1 | head -n1)"
+      # Suppress stderr: Bundler errors loudly inside a project whose lockfile
+      # pins a Bundler version that isn't installed, which is just noise here.
+      ver="$("$tool" --version 2>/dev/null | head -n1 || true)"
+      printf '  ✓ %-8s %s\n' "$tool" "${ver:-available}"
     else
       err "  ✗ $tool not found"
       ok=1
     fi
   done
+
+  # Warn if the active Ruby doesn't match the version pinned in .tool-versions.
+  if [ -f .tool-versions ] && command -v ruby >/dev/null 2>&1; then
+    local want have
+    want="$(awk '/^ruby /{print $2}' .tool-versions)"
+    have="$(ruby -e 'print RUBY_VERSION')"
+    if [ -n "$want" ] && [ "$want" != "$have" ]; then
+      err "  ! Ruby is $have but .tool-versions pins $want — run: mise install"
+      ok=1
+    fi
+  fi
+
   if [ -d "$BUNDLE_PATH" ]; then
     printf '  ✓ %-8s installed\n' "gems"
   else

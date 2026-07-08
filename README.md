@@ -27,10 +27,32 @@ the layout renders the menu from that data, so you don't touch any HTML.
 
 ### Prerequisites
 
-- **Ruby** (2.7+ recommended). macOS ships with an older system Ruby; if local
-  builds complain about the version, install a newer one with
-  [`rbenv`](https://github.com/rbenv/rbenv) or Homebrew (`brew install ruby`).
-- **Bundler**: `gem install bundler`
+This project pins its Ruby version in `.tool-versions` and uses
+[mise](https://mise.jdx.dev/) to manage it — the same way `uv` or `pyenv` manage
+Python versions. One-time machine setup:
+
+```bash
+brew install mise
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc   # restart your shell afterwards
+```
+
+Then, from this project directory:
+
+```bash
+mise install    # installs the pinned Ruby (reads .tool-versions)
+```
+
+mise auto-switches to the pinned Ruby whenever you `cd` into the project, so
+there's no env to manually activate or deactivate. Bundler ships with Ruby, so
+nothing else needs installing — `./dev setup` handles the gems.
+
+> **Mental model (coming from Python):** `mise` ≈ `uv`'s Python-version
+> management, the `Gemfile`/`Gemfile.lock` ≈ `pyproject.toml`/`uv.lock`, and
+> Bundler installing into `./vendor/bundle` ≈ the project's virtualenv. `bundle
+> exec <cmd>` ≈ running a command inside the activated venv.
+
+> **Not using mise?** Any tool that reads `.tool-versions` works (e.g. `asdf`),
+> or just install Ruby 3.3 yourself (`brew install ruby@3.3`).
 
 ### Quickstart
 
